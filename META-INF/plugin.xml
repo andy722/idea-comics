@@ -1,0 +1,61 @@
+<idea-plugin version="2">
+
+    <name>Geek And Poke</name>
+    <id>com.abelsky.idea.geekandpoke</id>
+
+    <vendor email="andy@abelsky.com" url="http://abelsky.com">Andy Belsky</vendor>
+
+    <description>Displays comic strips from the famous Geek And Poke, http://geekandpoke.typepad.com</description>
+    <version>0.1</version>
+    <change-notes>
+    <![CDATA[
+<b>Version 0.1</b>
+<ul>
+<li>Initial release</li>
+</ul>]]>
+    </change-notes>
+
+    <resource-bundle>
+
+    </resource-bundle>
+
+    <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="107.105"/>
+
+    <application-components>
+        <component>
+            <implementation-class>com.abelsky.idea.geekandpoke.ComicsPlugin</implementation-class>
+            <interface-class>com.abelsky.idea.geekandpoke.ComicsPlugin</interface-class>
+        </component>
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+                   serviceInterface="com.abelsky.idea.geekandpoke.ui.ComicsPanel"
+                   serviceImplementation="com.abelsky.idea.geekandpoke.ui.ComicsPanel"/>
+        <applicationService
+                serviceInterface="com.abelsky.idea.geekandpoke.http.PageScanner"
+                serviceImplementation="com.abelsky.idea.geekandpoke.http.PageScanner"/>
+        <applicationService
+                serviceInterface="com.abelsky.idea.geekandpoke.http.EntryFetcher"
+                serviceImplementation="com.abelsky.idea.geekandpoke.http.EntryFetcher"/>
+        <applicationService
+                serviceInterface="com.abelsky.idea.geekandpoke.entries.OfflineCache"
+                serviceImplementation="com.abelsky.idea.geekandpoke.entries.OfflineCache"/>
+        <toolWindow
+                id="Geek &amp; Poke"
+                secondary="true" anchor="right"
+                factoryClass="com.abelsky.idea.geekandpoke.ui.ComicsPanelFactory"
+                icon="/icons/icon-16x16.png"/>
+    </extensions>
+
+    <depends>com.intellij.modules.lang</depends>
+</idea-plugin>
