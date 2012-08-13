@@ -15,10 +15,6 @@
 </ul>]]>
     </change-notes>
 
-    <resource-bundle>
-
-    </resource-bundle>
-
     <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="107.105"/>
 
@@ -35,21 +31,24 @@
 
     <actions>
         <!-- Add your actions here -->
+      <action id="com.abelsky.idea.geekandpoke.ui.MoreAction" class="com.abelsky.idea.geekandpoke.ui.MoreAction"
+              text="Fetch more"/>
+      <action id="com.abelsky.idea.geekandpoke.ui.RefreshAction" class="com.abelsky.idea.geekandpoke.ui.RefreshAction"
+              text="Fetch latest"/>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService
                    serviceInterface="com.abelsky.idea.geekandpoke.ui.ComicsPanel"
-                   serviceImplementation="com.abelsky.idea.geekandpoke.ui.ComicsPanel"/>
+                   serviceImplementation="com.abelsky.idea.geekandpoke.ui.impl.ComicsPanelImpl"/>
+
         <applicationService
-                serviceInterface="com.abelsky.idea.geekandpoke.http.PageScanner"
-                serviceImplementation="com.abelsky.idea.geekandpoke.http.PageScanner"/>
+                serviceInterface="com.abelsky.idea.geekandpoke.http.ContentUpdater"
+                serviceImplementation="com.abelsky.idea.geekandpoke.http.impl.ContentUpdaterImpl"/>
+
         <applicationService
-                serviceInterface="com.abelsky.idea.geekandpoke.http.EntryFetcher"
-                serviceImplementation="com.abelsky.idea.geekandpoke.http.EntryFetcher"/>
-        <applicationService
-                serviceInterface="com.abelsky.idea.geekandpoke.entries.OfflineCache"
-                serviceImplementation="com.abelsky.idea.geekandpoke.entries.OfflineCache"/>
+                serviceInterface="com.abelsky.idea.geekandpoke.entries.EntryCache"
+                serviceImplementation="com.abelsky.idea.geekandpoke.entries.impl.OfflineCacheImpl"/>
         <toolWindow
                 id="Geek &amp; Poke"
                 secondary="true" anchor="right"

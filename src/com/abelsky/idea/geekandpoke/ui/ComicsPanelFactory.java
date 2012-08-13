@@ -17,7 +17,7 @@ public class ComicsPanelFactory implements ToolWindowFactory {
         final ComicsPanel panel = ServiceManager.getService(ComicsPanel.class);
         toolWindow.setTitle(MessageBundle.message("panel.title"));
         toolWindow.getContentManager().addContent(
-                ContentFactory.SERVICE.getInstance().createContent(panel, "by Oliver Widder (http://www.geekandpoke.com)", false));
+                ContentFactory.SERVICE.getInstance().createContent(panel.getUIComponent(), "by Oliver Widder (http://www.geekandpoke.com)", false));
     }
 
 }

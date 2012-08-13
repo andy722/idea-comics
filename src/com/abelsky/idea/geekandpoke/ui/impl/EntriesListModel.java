@@ -1,6 +1,6 @@
-package com.abelsky.idea.geekandpoke.ui;
+package com.abelsky.idea.geekandpoke.ui.impl;
 
-import com.abelsky.idea.geekandpoke.entries.OfflineEntry;
+import com.abelsky.idea.geekandpoke.entries.Entry;
 import com.intellij.ui.SortedListModel;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 class EntriesListModel implements ListModel {
 
-    private final SortedListModel<OfflineEntry> listModel = SortedListModel.create(OfflineEntry.PUBLICATION_DATE_COMPARATOR);
+    private final SortedListModel<Entry> listModel = SortedListModel.create(Entry.PUBLICATION_DATE_COMPARATOR);
 
     public EntriesListModel() {
     }
@@ -23,8 +23,8 @@ class EntriesListModel implements ListModel {
     }
 
     @Override
-    public OfflineEntry getElementAt(int index) {
-        return (OfflineEntry) listModel.getElementAt(index);
+    public Entry getElementAt(int index) {
+        return (Entry) listModel.getElementAt(index);
     }
 
     @Override
@@ -37,23 +37,23 @@ class EntriesListModel implements ListModel {
         listModel.removeListDataListener(l);
     }
 
-    public void add(OfflineEntry entry) {
+    public void add(Entry entry) {
         if (!entry.isDeleted() && !listModel.getItems().contains(entry)) {
             listModel.add(entry);
         }
     }
 
-    public void addAll(Collection<OfflineEntry> entries) {
-        for (OfflineEntry e : entries) {
+    public void addAll(Collection<Entry> entries) {
+        for (Entry e : entries) {
             add(e);
         }
     }
 
-    public void remove(OfflineEntry entry) {
+    public void remove(Entry entry) {
         listModel.remove(entry);
     }
 
-    public boolean contains(OfflineEntry entry) {
+    public boolean contains(Entry entry) {
         return listModel.getItems().contains(entry);
     }
 }

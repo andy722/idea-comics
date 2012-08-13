@@ -3,34 +3,31 @@ package com.abelsky.idea.geekandpoke;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
+
+import static java.awt.RenderingHints.KEY_INTERPOLATION;
+import static java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 
 public class Util {
 
-    public static String readToString(BufferedReader reader) throws IOException {
-        final StringBuilder builder = new StringBuilder();
+    public static BufferedImage resizeToFit(final BufferedImage image, final int targetWidth, final int targetHeight) {
+        final double imageWidth = image.getWidth();
+        final double imageHeight = image.getHeight();
 
-        String tmp;
-        while ((tmp = reader.readLine()) != null) {
-            builder.append(tmp);
-        }
+        final double scale = Math.min(targetWidth / imageWidth, targetHeight / imageHeight);
 
-        return builder.toString();
-    }
+        final int resultWidth = (int) (imageWidth * scale);
+        final int resultHeight = (int) (imageHeight * scale);
 
-    public static BufferedImage resizeToFit(final BufferedImage image, final int width, final int height) {
-        final double scaleX = width / (double) image.getWidth();
-        final double scaleY = height / (double) image.getHeight();
-        final double scale = Math.min(scaleX, scaleY);
-
-        final BufferedImage resizedImage = new BufferedImage((int) (image.getWidth() * scale), (int) (image.getHeight() * scale), BufferedImage.TYPE_INT_ARGB);
+        final BufferedImage resizedImage = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_INT_ARGB);
 
         final AffineTransform at = new AffineTransform() {{
             scale(scale, scale);
         }};
 
         final Graphics2D g = resizedImage.createGraphics();
+        g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_BILINEAR);
+
+        //noinspection NullableProblems
         g.drawImage(image, at, null);
 
         return resizedImage;

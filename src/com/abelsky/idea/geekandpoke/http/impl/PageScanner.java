@@ -1,22 +1,27 @@
-package com.abelsky.idea.geekandpoke.http;
+package com.abelsky.idea.geekandpoke.http.impl;
 
-import com.abelsky.idea.geekandpoke.Util;
-import com.abelsky.idea.geekandpoke.entries.OnlineEntry;
+import com.abelsky.idea.geekandpoke.entries.EntryInfo;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.io.StreamUtil;
+import com.intellij.util.net.HttpConfigurable;
 import org.jetbrains.annotations.NonNls;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Utilities for parsing Geek&Poke RSS feed.
+ * Utilities for parsing Geek&Poke site page.
  *
  * @author andy
  */
@@ -35,7 +40,7 @@ class PageScanner {
     /**
      * @return The list of updated entries (may be empty).
      */
-    public List<OnlineEntry> update(int pageNumber) {
+    public List<EntryInfo> update(int pageNumber) {
         final String contents;
         try {
             contents = fetchPage(pageNumber);
@@ -49,30 +54,46 @@ class PageScanner {
         final Matcher titleMatcher = titlePattern.matcher(contents);
         final Matcher imageMatcher = imagePattern.matcher(contents);
 
-        final List<OnlineEntry> entries = new ArrayList<OnlineEntry>();
+        final List<EntryInfo> entries = new ArrayList<EntryInfo>();
         while (idMatcher.find() & dateMatcher.find() & titleMatcher.find() & imageMatcher.find()) {
             try {
-                Date pubDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.US).parse(dateMatcher.group(1));
-                final OnlineEntry entry = new OnlineEntry(idMatcher.group(1), titleMatcher.group(2), pubDate, titleMatcher.group(1), imageMatcher.group(0));
+                final String id = idMatcher.group(1);
+                final String title = titleMatcher.group(2);
+                final Date pubDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.US).parse(dateMatcher.group(1));
+                final URL permLink = new URL(titleMatcher.group(1));
+                final URL imageUrl = new URL(imageMatcher.group(0));
+                final EntryInfo entry = new EntryInfo(id, title, pubDate, permLink, imageUrl);
+
                 entries.add(entry);
+
             } catch (ParseException e) {
+                log.error("Cannot parse entry", e);
+            } catch (MalformedURLException e) {
                 log.error("Cannot parse entry", e);
             }
         }
 
-        return entries ;
+        return entries;
     }
 
     private String fetchPage(int pageNumber) throws IOException {
-        assert pageNumber >= 0;
+        log.assertTrue(pageNumber >= 0);
 
         final URL url = new URL(pageNumber == 0 ? BASE_URL : BASE_URL + "/page/" + pageNumber + "/");
 
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        // Ensure that proxy (if any) is set up for this request.
+        final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
+        httpConfigurable.prepareURL(url.toExternalForm());
+
+        if (log.isDebugEnabled()) {
+            log.debug("Fetching page #" + pageNumber + " from \"" + url + "\"");
+        }
+
+        final InputStream stream = url.openStream();
         try {
-            return Util.readToString(reader);
+            return StreamUtil.readText(stream);
         } finally {
-            reader.close();
+            stream.close();
         }
     }
 
