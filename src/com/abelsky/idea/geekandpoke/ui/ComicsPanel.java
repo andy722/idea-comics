@@ -20,6 +20,7 @@
 package com.abelsky.idea.geekandpoke.ui;
 
 import com.abelsky.idea.geekandpoke.http.EntryHandler;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -27,7 +28,16 @@ import javax.swing.*;
  * @author andy
  */
 public interface ComicsPanel {
+
+    /**
+     * @return A callback for displaying new entries in the UI.
+     */
+    @NotNull
     EntryHandler getEntryHandler();
 
+    /**
+     * @return A component toolbar.
+     */
+    @NotNull
     JComponent getUIComponent();
 }

@@ -20,12 +20,17 @@
 package com.abelsky.idea.geekandpoke.http;
 
 /**
- *
- *
  * @author andy
  */
 public interface ContentUpdater {
+
+    /**
+     * Fetches the last entries. Downloads and stores the ones which are new.
+     */
     void fetchLastPage(EntryHandler handler);
 
+    /**
+     * Fetches more older entries. Can be called subsequently.
+     */
     void fetchMore(EntryHandler handler);
 }

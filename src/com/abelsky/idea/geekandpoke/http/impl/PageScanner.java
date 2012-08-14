@@ -24,6 +24,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.StreamUtil;
 import com.intellij.util.net.HttpConfigurable;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,15 +74,15 @@ class PageScanner {
         final Matcher titleMatcher = titlePattern.matcher(contents);
         final Matcher imageMatcher = imagePattern.matcher(contents);
 
-        final List<EntryInfo> entries = new ArrayList<EntryInfo>();
+        @NotNull final List<EntryInfo> entries = new ArrayList<EntryInfo>();
         while (idMatcher.find() & dateMatcher.find() & titleMatcher.find() & imageMatcher.find()) {
             try {
                 final String id = idMatcher.group(1);
                 final String title = titleMatcher.group(2);
                 final Date pubDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.US).parse(dateMatcher.group(1));
-                final URL permLink = new URL(titleMatcher.group(1));
-                final URL imageUrl = new URL(imageMatcher.group(0));
-                final EntryInfo entry = new EntryInfo(id, title, pubDate, permLink, imageUrl);
+                @NotNull final URL permLink = new URL(titleMatcher.group(1));
+                @NotNull final URL imageUrl = new URL(imageMatcher.group(0));
+                @NotNull final EntryInfo entry = new EntryInfo(id, title, pubDate, permLink, imageUrl);
 
                 entries.add(entry);
 
@@ -98,7 +99,7 @@ class PageScanner {
     private String fetchPage(int pageNumber) throws IOException {
         log.assertTrue(pageNumber >= 0);
 
-        final URL url = new URL(pageNumber == 0 ? BASE_URL : BASE_URL + "/page/" + pageNumber + "/");
+        @NotNull final URL url = new URL(pageNumber == 0 ? BASE_URL : BASE_URL + "/page/" + pageNumber + "/");
 
         // Ensure that proxy (if any) is set up for this request.
         final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();

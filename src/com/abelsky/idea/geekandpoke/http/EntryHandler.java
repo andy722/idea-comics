@@ -22,7 +22,7 @@ package com.abelsky.idea.geekandpoke.http;
 import com.abelsky.idea.geekandpoke.entries.Entry;
 
 /**
- * Handles new fetched entry.
+ * Callback for handling of a new fetched entry.
  *
  * @author andy
  */

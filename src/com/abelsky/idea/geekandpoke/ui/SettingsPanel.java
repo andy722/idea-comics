@@ -28,6 +28,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.Spacer;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -38,6 +39,8 @@ import java.awt.event.ActionListener;
 import static com.abelsky.idea.geekandpoke.messages.MessageBundle.message;
 
 /**
+ * Displays and handles plugin properties.
+ *
  * @author andy
  */
 public class SettingsPanel implements Configurable {
@@ -45,21 +48,22 @@ public class SettingsPanel implements Configurable {
     private Panel panel;
 
     private static class Panel extends JPanel {
+        @NotNull
         private final JLabel cacheSizeValueLabel;
 
         public Panel() {
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
-            final JPanel cachePanel = new JPanel(new BorderLayout());
-            final Border border = new CompoundBorder(new EtchedBorder(EtchedBorder.LOWERED), new EmptyBorder(3, 5, 3, 5));
+            @NotNull final JPanel cachePanel = new JPanel(new BorderLayout());
+            @NotNull final Border border = new CompoundBorder(new EtchedBorder(EtchedBorder.LOWERED), new EmptyBorder(3, 5, 3, 5));
             cachePanel.setBorder(new TitledBorder(border, message("configuration.panel.cache.title")));
 
-            final JPanel gridWrapper = new JPanel(new GridLayout(1, 2));
+            @NotNull final JPanel gridWrapper = new JPanel(new GridLayout(1, 2));
             gridWrapper.add(new JLabel(message("configuration.panel.cache.size")));
             gridWrapper.add(cacheSizeValueLabel = new JLabel());
             cachePanel.add(gridWrapper, BorderLayout.NORTH);
 
-            final JButton clearCacheButton = new JButton(message("configuration.panel.cache.clear"));
+            @NotNull final JButton clearCacheButton = new JButton(message("configuration.panel.cache.clear"));
             clearCacheButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -68,7 +72,7 @@ public class SettingsPanel implements Configurable {
                 }
             });
 
-            JPanel buttonWrapper = new JPanel(new GridLayout(1, 3));
+            @NotNull JPanel buttonWrapper = new JPanel(new GridLayout(1, 3));
             buttonWrapper.setBorder(IdeBorderFactory.createEmptyBorder(3));
             buttonWrapper.add(clearCacheButton);
             buttonWrapper.add(new Spacer());
@@ -82,11 +86,12 @@ public class SettingsPanel implements Configurable {
         }
 
         public void updateCacheSize() {
-            final long cacheSizeInBytes = ServiceManager.getService(EntryCache.class).getCacheSizeInButes();
+            final long cacheSizeInBytes = ServiceManager.getService(EntryCache.class).getCacheSizeInBytes();
             cacheSizeValueLabel.setText(FileUtils.byteCountToDisplaySize(cacheSizeInBytes));
         }
     }
 
+    @NotNull
     @Nls
     @Override
     public String getDisplayName() {

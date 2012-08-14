@@ -21,6 +21,7 @@ package com.abelsky.idea.geekandpoke.ui.impl;
 
 import com.abelsky.idea.geekandpoke.entries.Entry;
 import com.intellij.ui.SortedListModel;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.ListDataListener;
@@ -41,6 +42,7 @@ class EntriesListModel implements ListModel {
         return listModel.getSize();
     }
 
+    @NotNull
     @Override
     public Entry getElementAt(int index) {
         return (Entry) listModel.getElementAt(index);
@@ -56,14 +58,14 @@ class EntriesListModel implements ListModel {
         listModel.removeListDataListener(l);
     }
 
-    public void add(Entry entry) {
+    public void add(@NotNull Entry entry) {
         if (!entry.isDeleted() && !listModel.getItems().contains(entry)) {
             listModel.add(entry);
         }
     }
 
-    public void addAll(Collection<Entry> entries) {
-        for (Entry e : entries) {
+    public void addAll(@NotNull Collection<Entry> entries) {
+        for (@NotNull Entry e : entries) {
             add(e);
         }
     }
@@ -72,6 +74,7 @@ class EntriesListModel implements ListModel {
         listModel.remove(entry);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean contains(Entry entry) {
         return listModel.getItems().contains(entry);
     }

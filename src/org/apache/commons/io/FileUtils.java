@@ -16,6 +16,9 @@
  */
 package org.apache.commons.io;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -386,7 +389,7 @@ public class FileUtils {
      * @since 2.4
      */
     // See https://issues.apache.org/jira/browse/IO-226 - should the rounding be changed?
-    public static String byteCountToDisplaySize(BigInteger size) {
+    public static String byteCountToDisplaySize(@NotNull BigInteger size) {
         String displaySize;
 
         if (size.divide(ONE_EB_BI).compareTo(BigInteger.ZERO) > 0) {
@@ -2407,10 +2410,10 @@ public class FileUtils {
      *
      * @since 2.0
      */
-    public static long sizeOf(File file) {
+    public static long sizeOf(@NotNull File file) {
 
         if (!file.exists()) {
-            String message = file + " does not exist";
+            @NotNull String message = file + " does not exist";
             throw new IllegalArgumentException(message);
         }
 
@@ -2465,16 +2468,16 @@ public class FileUtils {
      * @throws NullPointerException
      *             if the directory is {@code null}
      */
-    public static long sizeOfDirectory(File directory) {
+    public static long sizeOfDirectory(@NotNull File directory) {
         checkDirectory(directory);
 
-        final File[] files = directory.listFiles();
+        @Nullable final File[] files = directory.listFiles();
         if (files == null) {  // null if security restricted
             return 0L;
         }
         long size = 0;
 
-        for (final File file : files) {
+        for (@NotNull final File file : files) {
             try {
                 if (!isSymlink(file)) {
                     size += sizeOf(file);
@@ -2528,7 +2531,7 @@ public class FileUtils {
      * @param directory The {@code File} to check.
      * @throws IllegalArgumentException if the given {@code File} does not exist or is not a directory.
      */
-    private static void checkDirectory(File directory) {
+    private static void checkDirectory(@NotNull File directory) {
         if (!directory.exists()) {
             throw new IllegalArgumentException(directory + " does not exist");
         }
@@ -2918,14 +2921,14 @@ public class FileUtils {
      * @throws IOException if an IO error occurs while checking the file
      * @since 2.0
      */
-    public static boolean isSymlink(File file) throws IOException {
+    public static boolean isSymlink(@Nullable File file) throws IOException {
         if (file == null) {
             throw new NullPointerException("File must not be null");
         }
         if (FilenameUtils.isSystemWindows()) {
             return false;
         }
-        File fileInCanonicalDir = null;
+        @Nullable File fileInCanonicalDir = null;
         if (file.getParent() == null) {
             fileInCanonicalDir = file;
         } else {

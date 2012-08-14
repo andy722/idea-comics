@@ -46,5 +46,5 @@ public interface EntryCache {
     /**
      * @return An approximate size of all locally stored data in bytes.
      */
-    long getCacheSizeInButes();
+    long getCacheSizeInBytes();
 }

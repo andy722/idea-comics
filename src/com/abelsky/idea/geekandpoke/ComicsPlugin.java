@@ -40,7 +40,7 @@ public class ComicsPlugin implements ApplicationComponent {
     }
 
     private void startUpdateTimer() {
-        final Timer timer = new Timer("Geek and Poke updater");
+        @NotNull final Timer timer = new Timer("Geek and Poke updater");
         timer.schedule(new TimerTask() {
             @Override
             public void run() {

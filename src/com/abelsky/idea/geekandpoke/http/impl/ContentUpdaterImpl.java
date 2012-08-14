@@ -41,6 +41,8 @@ import java.util.List;
 import static com.google.common.collect.Collections2.filter;
 
 /**
+ * Utilities for updating entries list and fetching entries.
+ *
  * @author andy
  */
 public class ContentUpdaterImpl implements ContentUpdater {
@@ -52,8 +54,8 @@ public class ContentUpdaterImpl implements ContentUpdater {
         void run(@NotNull ProgressIndicator indicator);
     }
 
-    private void runUpdateTask(final BackgroundUpdateTask task) {
-        final Task.Backgroundable updateTask = new Task.Backgroundable(null,
+    private void runUpdateTask(@NotNull final BackgroundUpdateTask task) {
+        @NotNull final Task.Backgroundable updateTask = new Task.Backgroundable(null,
                 MessageBundle.message("update.progress.title"), false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -71,7 +73,7 @@ public class ContentUpdaterImpl implements ContentUpdater {
     }
 
     @Override
-    public void fetchLastPage(final EntryHandler handler) {
+    public void fetchLastPage(@NotNull final EntryHandler handler) {
         runUpdateTask(new BackgroundUpdateTask() {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -83,7 +85,7 @@ public class ContentUpdaterImpl implements ContentUpdater {
     }
 
     @Override
-    public void fetchMore(final EntryHandler handler) {
+    public void fetchMore(@NotNull final EntryHandler handler) {
         runUpdateTask(new BackgroundUpdateTask() {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -92,8 +94,8 @@ public class ContentUpdaterImpl implements ContentUpdater {
         });
     }
 
-    private void fetchEntries(ProgressIndicator indicator, List<EntryInfo> onlineEntries, EntryHandler handler) {
-        final EntryFetcher fetcher = new EntryFetcher();
+    private void fetchEntries(@NotNull ProgressIndicator indicator, List<EntryInfo> onlineEntries, @NotNull EntryHandler handler) {
+        @NotNull final EntryFetcher fetcher = new EntryFetcher();
         final EntryCache cache = ServiceManager.getService(EntryCache.class);
 
         final Collection<EntryInfo> newEntries = filter(onlineEntries, new Predicate<EntryInfo>() {
@@ -109,9 +111,9 @@ public class ContentUpdaterImpl implements ContentUpdater {
         indicator.setFraction(0);
 
         int i = 0;
-        for (EntryInfo onlineEntry : newEntries) {
+        for (@NotNull EntryInfo onlineEntry : newEntries) {
             try {
-                final Entry local = fetcher.read(onlineEntry);
+                @NotNull final Entry local = fetcher.read(onlineEntry);
                 cache.asyncCache(local);
                 handler.handle(local);
 
@@ -125,10 +127,10 @@ public class ContentUpdaterImpl implements ContentUpdater {
         }
     }
 
-    private void doGetMore(ProgressIndicator indicator, EntryHandler handler) {
+    private void doGetMore(@NotNull ProgressIndicator indicator, @NotNull EntryHandler handler) {
         final EntryCache cache = ServiceManager.getService(EntryCache.class);
 
-        List<EntryInfo> newEntries = new ArrayList<EntryInfo>();
+        @NotNull List<EntryInfo> newEntries = new ArrayList<EntryInfo>();
 
         while (newEntries.isEmpty()) {
             newEntries.addAll(filter(new PageScanner().update(lastPageChecked++), new Predicate<EntryInfo>() {

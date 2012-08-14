@@ -3,7 +3,7 @@
     <name>Geek And Poke</name>
     <id>com.abelsky.idea.geekandpoke</id>
 
-    <vendor email="andy@abelsky.com" url="http://abelsky.com">Andy Belsky</vendor>
+    <vendor email="andy@abelsky.com">Andy Belsky</vendor>
 
     <description>Displays comic strips from the famous Geek And Poke, http://geekandpoke.typepad.com</description>
     <version>0.1</version>

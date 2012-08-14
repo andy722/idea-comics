@@ -25,6 +25,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.ContentFactory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author andy
@@ -32,7 +33,7 @@ import com.intellij.ui.content.ContentFactory;
 public class ComicsPanelFactory implements ToolWindowFactory {
 
     @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
+    public void createToolWindowContent(Project project, @NotNull ToolWindow toolWindow) {
         final ComicsPanel panel = ServiceManager.getService(ComicsPanel.class);
         toolWindow.setTitle(MessageBundle.message("panel.title"));
         toolWindow.getContentManager().addContent(

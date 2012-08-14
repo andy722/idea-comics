@@ -19,6 +19,8 @@
 
 package com.abelsky.idea.geekandpoke;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -26,9 +28,19 @@ import java.awt.image.BufferedImage;
 import static java.awt.RenderingHints.KEY_INTERPOLATION;
 import static java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 
+/**
+ * A dump of various utilities.
+ *
+ * @author andy
+ */
 public class Util {
 
-    public static BufferedImage resizeToFit(final BufferedImage image, final int targetWidth, final int targetHeight) {
+    /**
+     * Returns a copy of {@code image} scaled proportionally to fit
+     * into {@code targetWidht} x {@code targetHeight} box.
+     */
+    @NotNull
+    public static BufferedImage resizeToFit(@NotNull final BufferedImage image, final int targetWidth, final int targetHeight) {
         final double imageWidth = image.getWidth();
         final double imageHeight = image.getHeight();
 
@@ -37,9 +49,10 @@ public class Util {
         final int resultWidth = (int) (imageWidth * scale);
         final int resultHeight = (int) (imageHeight * scale);
 
+        @NotNull
         final BufferedImage resizedImage = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_INT_ARGB);
 
-        final AffineTransform at = new AffineTransform() {{
+        @NotNull final AffineTransform at = new AffineTransform() {{
             scale(scale, scale);
         }};
 

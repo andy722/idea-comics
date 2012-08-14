@@ -36,6 +36,8 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -58,7 +60,9 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
 
     private final Logger log = Logger.getInstance(getClass());
 
+    @NotNull
     private final JList entriesList;
+    @NotNull
     private final JPanel imagePanel;
 
     private final EntryHandler entryHandler = new NewEntryHandlerImpl();
@@ -75,16 +79,17 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
         imagePanel = createImagePanel();
         entriesList = createEntriesList();
 
-        final JScrollPane entriesListScroll = new JScrollPane(entriesList);
-        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, entriesListScroll, imagePanel);
+        @NotNull final JScrollPane entriesListScroll = new JScrollPane(entriesList);
+        @NotNull final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, entriesListScroll, imagePanel);
 
         add(splitPane, BorderLayout.CENTER);
 
         entriesListModel.addAll(ServiceManager.getService(EntryCache.class).getCached());
     }
 
+    @NotNull
     private JList createEntriesList() {
-        final JList entriesList = new JList(entriesListModel);
+        @NotNull final JList entriesList = new JList(entriesListModel);
         entriesList.setCellRenderer(new ComicTitleCellRenderer());
         entriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         entriesList.addListSelectionListener(new ListSelectionListener() {
@@ -99,7 +104,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
 
         entriesList.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyTyped(KeyEvent e) {
+            public void keyTyped(@NotNull KeyEvent e) {
                 if (e.getKeyChar() != KeyEvent.VK_DELETE) {
                     return;
                 }
@@ -112,8 +117,9 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
         return entriesList;
     }
 
+    @NotNull
     private JPanel createImagePanel() {
-        final JPanel imagePanel = new JPanel(new BorderLayout());
+        @NotNull final JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(Color.WHITE);
         imagePanel.addComponentListener(new ComponentAdapter() {
             @Override
@@ -127,16 +133,17 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
         return imagePanel;
     }
 
+    @NotNull
     private JComponent createToolbar() {
         final ActionManager actionManager = ActionManager.getInstance();
-        final DefaultActionGroup actionGroup = new DefaultActionGroup();
+        @NotNull final DefaultActionGroup actionGroup = new DefaultActionGroup();
 
         actionGroup.add(new RefreshAction());
         actionGroup.add(new MoreAction());
 
         final ActionToolbar actionToolbar = actionManager.createActionToolbar("ComicsPanelToolbar", actionGroup, true);
         final JComponent actionToolbarComponent = actionToolbar.getComponent();
-        final JPanel actionsPanel = new JPanel();
+        @NotNull final JPanel actionsPanel = new JPanel();
 
         actionToolbar.setReservePlaceAutoPopupIcon(false);
         actionsPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
@@ -150,7 +157,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
             return;
         }
 
-        final Entry entry = entriesListModel.getElementAt(idx);
+        @NotNull final Entry entry = entriesListModel.getElementAt(idx);
         if (entry.equals(currentEntry)) {
             return;
         }
@@ -167,7 +174,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
             return;
         }
 
-        final Entry entry = entriesListModel.getElementAt(idx);
+        @NotNull final Entry entry = entriesListModel.getElementAt(idx);
 
         if (log.isDebugEnabled()) {
             log.debug("Deleting entry: " + e);
@@ -179,7 +186,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
     }
 
     private void drawCurrentImage() {
-        final BufferedImage image = currentEntry.getImage();
+        @Nullable final BufferedImage image = currentEntry.getImage();
         if (image == null) {
             imagePanel.removeAll();
             imagePanel.revalidate();
@@ -195,9 +202,9 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
 
         imagePanel.removeAll();
 
-        final BufferedImage resizedImage = Util.resizeToFit(image, width, height);
+        @NotNull final BufferedImage resizedImage = Util.resizeToFit(image, width, height);
 
-        final JLabel label = new JLabel(new ImageIcon(resizedImage));
+        @NotNull final JLabel label = new JLabel(new ImageIcon(resizedImage));
         label.addMouseListener(new OpenPermLinkAdapter());
         label.setToolTipText(MessageBundle.message("entry.image.tooltip"));
         imagePanel.add(label);
@@ -209,7 +216,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
 
     private class OpenPermLinkAdapter extends MouseAdapter {
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(@NotNull MouseEvent e) {
             if (e.getClickCount() == 2) {
                 final String link = currentEntry.getEntryInfo().getPermLink().toExternalForm();
                 BrowserUtil.launchBrowser(link);
@@ -219,7 +226,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
 
     private class NewEntryHandlerImpl implements EntryHandler {
         @Override
-        public void handle(final Entry newEntry) {
+        public void handle(@NotNull final Entry newEntry) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -233,7 +240,7 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
     }
 
     private void notifyNewEntry() {
-        final Notification newEntryNotification = new Notification(
+        @NotNull final Notification newEntryNotification = new Notification(
                 MessageBundle.message("notification.new.strip.group"),
                 MessageBundle.message("notification.new.strip.title"),
                 MessageBundle.message("notification.new.strip.content"),
@@ -242,11 +249,13 @@ class ComicsPanelImpl extends JPanel implements ComicsPanel {
         Notifications.Bus.notify(newEntryNotification);
     }
 
+    @NotNull
     @Override
     public EntryHandler getEntryHandler() {
         return entryHandler;
     }
 
+    @NotNull
     @Override
     public JComponent getUIComponent() {
         return this;

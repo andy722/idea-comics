@@ -27,12 +27,23 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 
+/**
+ * Entry meta-information, from which an full entry can be re-created.
+ *
+ * @see Entry
+ * @author andy
+ */
 public class EntryInfo implements Serializable {
 
+    @NotNull
     private final String id;
+    @NotNull
     private final String title;
+    @NotNull
     protected final Date date;
+    @NotNull
     private final URL permLink;
+    @NotNull
     private final URL imageUrl;
 
     public EntryInfo(@NotNull String id, @NotNull String title, @NotNull Date date, @NotNull URL permLink, @NotNull URL imageUrl) {
@@ -43,22 +54,27 @@ public class EntryInfo implements Serializable {
         this.imageUrl = imageUrl;
     }
 
+    @NotNull
     public String getId() {
         return id;
     }
 
+    @NotNull
     public String getTitle() {
         return title;
     }
 
+    @NotNull
     public URL getPermLink() {
         return permLink;
     }
 
+    @NotNull
     public URL getImageUrl() {
         return imageUrl;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "EntryInfo{" +
@@ -71,7 +87,7 @@ public class EntryInfo implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@NotNull Object o) {
         return (o instanceof EntryInfo) && new EqualsBuilder().append(id, ((EntryInfo) o).id).isEquals();
     }
 

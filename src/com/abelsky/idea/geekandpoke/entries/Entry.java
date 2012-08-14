@@ -23,6 +23,8 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,6 +37,8 @@ import java.util.Comparator;
 
 /**
  * Downloaded entry. Has an image (instead of just URL) and some additional flags.
+ *
+ * @author andy
  */
 public class Entry implements Serializable {
 
@@ -45,7 +49,7 @@ public class Entry implements Serializable {
      */
     public static final Comparator<Entry> PUBLICATION_DATE_COMPARATOR = new Comparator<Entry>() {
         @Override
-        public int compare(Entry o1, Entry o2) {
+        public int compare(@NotNull Entry o1, @NotNull Entry o2) {
             return -o1.entryInfo.date.compareTo(o2.entryInfo.date);
         }
     };
@@ -56,6 +60,7 @@ public class Entry implements Serializable {
     /**
      * Store image on disk, read on demand.
      */
+    @Nullable
     private transient SoftReference<BufferedImage> imageRef;
 
     /**
@@ -74,6 +79,7 @@ public class Entry implements Serializable {
         this.imageRef = new SoftReference<BufferedImage>(image);
     }
 
+    @Nullable
     public BufferedImage getImage() {
         if (imageRef == null) {
             log.assertTrue(isDeleted());
@@ -82,15 +88,16 @@ public class Entry implements Serializable {
 
         log.assertTrue(!isDeleted());
 
-        BufferedImage image = imageRef.get();
+        @Nullable BufferedImage image = imageRef.get();
         if (image == null) {
             imageRef = new SoftReference<BufferedImage>(image = fetchCachedImage());
         }
         return image;
     }
 
+    @Nullable
     private BufferedImage fetchCachedImage() {
-        final Entry cached = ServiceManager.getService(EntryCache.class).getCached(entryInfo);
+        @Nullable final Entry cached = ServiceManager.getService(EntryCache.class).getCached(entryInfo);
         log.assertTrue(cached != null, "An entry has missed the cache");
 
         //noinspection ConstantConditions
@@ -139,10 +146,10 @@ public class Entry implements Serializable {
     ////////////////////  (De)serialization support.
     ////////////////////
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
+    private void writeObject(@NotNull ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         if (imageRef != null) {
-            BufferedImage image = imageRef.get();
+            @Nullable BufferedImage image = imageRef.get();
             if (image == null) {
                 image = fetchCachedImage();
                 imageRef = new SoftReference<BufferedImage>(image);
@@ -151,7 +158,7 @@ public class Entry implements Serializable {
         }
     }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
+    private void readObject(@NotNull ObjectInputStream in) throws IOException, ClassNotFoundException{
         in.defaultReadObject();
         imageRef = new SoftReference<BufferedImage>(ImageIO.read(ImageIO.createImageInputStream(in)));
     }

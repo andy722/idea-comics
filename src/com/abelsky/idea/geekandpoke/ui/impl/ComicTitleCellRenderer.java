@@ -22,6 +22,7 @@ package com.abelsky.idea.geekandpoke.ui.impl;
 import com.abelsky.idea.geekandpoke.entries.Entry;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -34,7 +35,7 @@ class ComicTitleCellRenderer extends ColoredListCellRenderer {
 
     @Override
     protected void customizeCellRenderer(final JList list, Object value, int index, boolean selected, boolean hasFocus) {
-        final Entry entry = (Entry) value;
+        @NotNull final Entry entry = (Entry) value;
 
         SimpleTextAttributes attributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
         if (entry.isUnread()) {

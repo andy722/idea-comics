@@ -21,6 +21,8 @@ package com.abelsky.idea.geekandpoke.messages;
 
 import com.intellij.CommonBundle;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.lang.ref.Reference;
@@ -28,9 +30,12 @@ import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
 /**
+ * Access to localized texts.
+ *
  * @author andy
  */
 public class MessageBundle {
+    @Nullable
     private static Reference<ResourceBundle> bundleRef;
 
     @NonNls
@@ -39,19 +44,21 @@ public class MessageBundle {
     private MessageBundle() {
     }
 
-    public static String message(@PropertyKey(resourceBundle = BUNDLE)String key, Object... params) {
+    @NotNull
+    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE)String key, Object... params) {
         return CommonBundle.message(getBundle(), key, params);
     }
 
+    @NotNull
     private static ResourceBundle getBundle() {
-        ResourceBundle bundle = null;
-        if (MessageBundle.bundleRef != null) {
-            bundle = MessageBundle.bundleRef.get();
+        @Nullable ResourceBundle bundle = null;
+        if (bundleRef != null) {
+            bundle = bundleRef.get();
         }
 
         if (bundle == null) {
             bundle = ResourceBundle.getBundle(BUNDLE);
-            MessageBundle.bundleRef = new SoftReference<ResourceBundle>(bundle);
+            bundleRef = new SoftReference<ResourceBundle>(bundle);
         }
         return bundle;
     }

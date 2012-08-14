@@ -22,6 +22,7 @@ package com.abelsky.idea.geekandpoke.http.impl;
 import com.abelsky.idea.geekandpoke.entries.Entry;
 import com.abelsky.idea.geekandpoke.entries.EntryInfo;
 import com.intellij.util.net.HttpConfigurable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.io.BufferedInputStream;
@@ -39,14 +40,15 @@ class EntryFetcher {
     /**
      * Downloads an entry.
      */
-    public Entry read(EntryInfo entry) throws IOException {
-        final URL url = entry.getImageUrl();
+    @NotNull
+    public Entry read(@NotNull EntryInfo entry) throws IOException {
+        @NotNull final URL url = entry.getImageUrl();
 
         // Ensure that proxy (if any) is set up for this request.
         final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
         httpConfigurable.prepareURL(url.toExternalForm());
 
-        final InputStream in = new BufferedInputStream(url.openStream());
+        @NotNull final InputStream in = new BufferedInputStream(url.openStream());
         try {
             return new Entry(entry, ImageIO.read(in));
         } finally {

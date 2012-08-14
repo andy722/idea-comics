@@ -57,12 +57,13 @@ public class OfflineCacheImpl implements EntryCache {
 
     private final ExecutorService cachingLog = ConcurrencyUtil.newSingleThreadExecutor("Comics updater");
 
+    @NotNull
     private final File root;
 
     public OfflineCacheImpl() {
         final PluginId id = PluginId.getId(ComicsPlugin.PLUGIN_ID);
 
-        final IdeaPluginDescriptor plugin = PluginManager.getPlugin(id);
+        @Nullable final IdeaPluginDescriptor plugin = PluginManager.getPlugin(id);
         log.assertTrue(plugin != null, "Cannot find plugin \"" + ComicsPlugin.PLUGIN_ID + "\"");
 
         //noinspection ConstantConditions
@@ -70,7 +71,7 @@ public class OfflineCacheImpl implements EntryCache {
     }
 
     private List<File> getCacheContents() {
-        final File[] files = root.listFiles();
+        @Nullable final File[] files = root.listFiles();
         if (files == null) {
             // Cache base is not a directory or IO error occurred.
             if (log.isDebugEnabled()) {
@@ -90,6 +91,7 @@ public class OfflineCacheImpl implements EntryCache {
     public @NotNull
     List<Entry> getCached() {
         return newLinkedList(filter(transform(getCacheContents(), new Function<File, Entry>() {
+            @Nullable
             @Override
             public Entry apply(File input) {
                 return readFromFile(input);
@@ -105,7 +107,7 @@ public class OfflineCacheImpl implements EntryCache {
     private @Nullable
     Entry readFromFile(@NotNull File name) {
         try {
-            final ObjectInputStream in = new ObjectInputStream(new FileInputStream(name));
+            @NotNull final ObjectInputStream in = new ObjectInputStream(new FileInputStream(name));
             try {
                 return (Entry) in.readObject();
             } finally {
@@ -136,17 +138,17 @@ public class OfflineCacheImpl implements EntryCache {
         }
     }
 
-    public void cache(@NotNull Entry entry) {
+    private void cache(@NotNull Entry entry) {
         synchronized (entry.getEntryInfo()) {
             if (getCached(entry.getEntryInfo()) != null) {
                 physicallyDelete(entry);
             }
 
-            final File entryFile = entryFile(entry);
+            @NotNull final File entryFile = entryFile(entry);
             FileUtil.createIfDoesntExist(entryFile);
 
             try {
-                final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(entryFile));
+                @NotNull final ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(entryFile));
                 try {
                     out.writeObject(entry);
                 } finally {
@@ -175,13 +177,13 @@ public class OfflineCacheImpl implements EntryCache {
 
     @Override
     public void clear() {
-        for (File cacheElement : getCacheContents()) {
+        for (@NotNull File cacheElement : getCacheContents()) {
             FileUtil.delete(cacheElement);
         }
     }
 
     @Override
-    public long getCacheSizeInButes() {
+    public long getCacheSizeInBytes() {
         return FileUtils.sizeOf(root);
     }
 
