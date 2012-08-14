@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.abelsky.idea.geekandpoke.entries.impl;
 
 import com.abelsky.idea.geekandpoke.ComicsPlugin;
@@ -10,18 +29,14 @@ import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.ConcurrencyUtil;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.Collections2.filter;
@@ -40,7 +55,9 @@ public class OfflineCacheImpl implements EntryCache {
 
     private final Logger log = Logger.getInstance(getClass());
 
-    private final File cacheBase;
+    private final ExecutorService cachingLog = ConcurrencyUtil.newSingleThreadExecutor("Comics updater");
+
+    private final File root;
 
     public OfflineCacheImpl() {
         final PluginId id = PluginId.getId(ComicsPlugin.PLUGIN_ID);
@@ -49,7 +66,21 @@ public class OfflineCacheImpl implements EntryCache {
         log.assertTrue(plugin != null, "Cannot find plugin \"" + ComicsPlugin.PLUGIN_ID + "\"");
 
         //noinspection ConstantConditions
-        cacheBase = new File(plugin.getPath(), "cache");
+        root = new File(plugin.getPath(), "cache");
+    }
+
+    private List<File> getCacheContents() {
+        final File[] files = root.listFiles();
+        if (files == null) {
+            // Cache base is not a directory or IO error occurred.
+            if (log.isDebugEnabled()) {
+                log.debug("Cannot list files in: " + root);
+            }
+
+            return emptyList();
+        }
+
+        return newArrayList(files);
     }
 
     /**
@@ -58,17 +89,7 @@ public class OfflineCacheImpl implements EntryCache {
     @Override
     public @NotNull
     List<Entry> getCached() {
-        final File[] files = cacheBase.listFiles();
-        if (files == null) {
-            // Cache base is not a directory or IO error occurred.
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot list files in: " + cacheBase);
-            }
-
-            return emptyList();
-        }
-
-        return newLinkedList(filter(transform(newArrayList(files), new Function<File, Entry>() {
+        return newLinkedList(filter(transform(getCacheContents(), new Function<File, Entry>() {
             @Override
             public Entry apply(File input) {
                 return readFromFile(input);
@@ -103,7 +124,7 @@ public class OfflineCacheImpl implements EntryCache {
     @Override
     public @Nullable Entry getCached(@NotNull EntryInfo entry) {
         synchronized (entry) {
-            return readFromFile(new File(cacheBase, entry.getId()));
+            return readFromFile(new File(root, entry.getId()));
         }
     }
 
@@ -142,8 +163,6 @@ public class OfflineCacheImpl implements EntryCache {
         }
     }
 
-    private ExecutorService cachingLog = Executors.newSingleThreadExecutor();
-
     @Override
     public void asyncCache(@NotNull final Entry entry) {
         cachingLog.execute(new Runnable() {
@@ -154,7 +173,19 @@ public class OfflineCacheImpl implements EntryCache {
         });
     }
 
+    @Override
+    public void clear() {
+        for (File cacheElement : getCacheContents()) {
+            FileUtil.delete(cacheElement);
+        }
+    }
+
+    @Override
+    public long getCacheSizeInButes() {
+        return FileUtils.sizeOf(root);
+    }
+
     private @NotNull File entryFile(@NotNull Entry e) {
-        return new File(cacheBase, e.getEntryInfo().getId());
+        return new File(root, e.getEntryInfo().getId());
     }
 }

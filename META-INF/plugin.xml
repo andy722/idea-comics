@@ -54,6 +54,8 @@
                 secondary="true" anchor="right"
                 factoryClass="com.abelsky.idea.geekandpoke.ui.ComicsPanelFactory"
                 icon="/icons/icon-16x16.png"/>
+
+        <applicationConfigurable instance="com.abelsky.idea.geekandpoke.ui.SettingsPanel"/>
     </extensions>
 
     <depends>com.intellij.modules.lang</depends>
