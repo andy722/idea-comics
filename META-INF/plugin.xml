@@ -6,14 +6,17 @@
     <vendor email="andy@abelsky.com">Andy Belsky</vendor>
 
     <description>Displays comic strips from the famous Geek And Poke, http://geekandpoke.typepad.com</description>
-    <version>0.1</version>
-    <change-notes>
-    <![CDATA[
+    <version>0.1.1</version>
+    <change-notes><![CDATA[
+<b>Version 0.1.1</b>
+<ul>
+<li>Minor bugfix for caching entries if deployed as JAR</li>
+</ul>
 <b>Version 0.1</b>
 <ul>
 <li>Initial release</li>
-</ul>]]>
-    </change-notes>
+</ul>
+    ]]></change-notes>
 
     <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="107.105"/>

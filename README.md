@@ -1,7 +1,7 @@
 # Description
 
 Intellij plugin automatically fetching and displaying Geek & Poke comics
-from [geekandpoke.net](http://geekandpoke.net).
+from [geekandpoke.typepad.com](http://geekandpoke.typepad.com/).
 
 
 # Usage

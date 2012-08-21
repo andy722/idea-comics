@@ -31,10 +31,16 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ConcurrencyUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -57,20 +63,77 @@ public class OfflineCacheImpl implements EntryCache {
 
     private final ExecutorService cachingLog = ConcurrencyUtil.newSingleThreadExecutor("Comics updater");
 
-    @NotNull
+    @Nullable
     private final File root;
 
     public OfflineCacheImpl() {
+        root = initRootDirectory();
+        if (log.isDebugEnabled()) {
+            log.debug("Using cache at \"" + root + "\"");
+        }
+    }
+
+    private @Nullable File initRootDirectory() {
         final PluginId id = PluginId.getId(ComicsPlugin.PLUGIN_ID);
 
         @Nullable final IdeaPluginDescriptor plugin = PluginManager.getPlugin(id);
         log.assertTrue(plugin != null, "Cannot find plugin \"" + ComicsPlugin.PLUGIN_ID + "\"");
 
         //noinspection ConstantConditions
-        root = new File(plugin.getPath(), "cache");
+        final File pluginPath = plugin.getPath();
+
+        if (pluginPath.isDirectory()) {
+            // <my-plugin>/cache
+            return new File(pluginPath, "cache");
+
+        } else {
+            // <plugins-directory>/<my-plugin>.jar
+            final String absolutePath = pluginPath.getAbsolutePath();
+
+            // <plugins-directory>
+            final String rootPath = FilenameUtils.getFullPath(absolutePath);
+
+            // <my-plugin>
+            final String baseName = FilenameUtils.getBaseName(absolutePath);
+
+            // <plugins-directory>/<my-plugin>.cache
+            final File cachePath = new File(rootPath, baseName + ".cache");
+
+            if (cachePath.isFile()) {
+                FileUtil.delete(cachePath);
+            }
+
+            if (!cachePath.exists()) {
+                if (!cachePath.mkdir()) {
+                    // Couldn't create anything useful, just return some temporary directory.
+                    if (log.isDebugEnabled()) {
+                        log.debug("Couldn't initialize cache at " + cachePath);
+                    }
+
+                    try {
+                        return FileUtil.createTempDirectory(baseName, "");
+                    } catch (IOException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Couldn't create temporary directory with base name \"" + baseName +
+                                    "\" in \"" + FileUtil.getTempDirectory() + "\"");
+                        }
+                    }
+                }
+            }
+
+            return cachePath;
+        }
+    }
+
+    private boolean isEnabled() {
+        return root != null && root.isDirectory();
     }
 
     private List<File> getCacheContents() {
+        if (!isEnabled()) {
+            return emptyList();
+        }
+
         @Nullable final File[] files = root.listFiles();
         if (files == null) {
             // Cache base is not a directory or IO error occurred.
@@ -105,9 +168,13 @@ public class OfflineCacheImpl implements EntryCache {
      * @return De-serialized object or {@code null} on any error.
      */
     private @Nullable
-    Entry readFromFile(@NotNull File name) {
+    Entry readFromFile(@NotNull File file) {
+        if (log.isDebugEnabled()) {
+            log.debug("Reading entry from \"" + file + "\"");
+        }
+
         try {
-            @NotNull final ObjectInputStream in = new ObjectInputStream(new FileInputStream(name));
+            @NotNull final ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
             try {
                 return (Entry) in.readObject();
             } finally {
@@ -125,6 +192,7 @@ public class OfflineCacheImpl implements EntryCache {
 
     @Override
     public @Nullable Entry getCached(@NotNull EntryInfo entry) {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (entry) {
             return readFromFile(new File(root, entry.getId()));
         }
@@ -139,6 +207,10 @@ public class OfflineCacheImpl implements EntryCache {
     }
 
     private void cache(@NotNull Entry entry) {
+        if (!isEnabled()) {
+            return;
+        }
+
         synchronized (entry.getEntryInfo()) {
             if (getCached(entry.getEntryInfo()) != null) {
                 physicallyDelete(entry);
@@ -184,6 +256,9 @@ public class OfflineCacheImpl implements EntryCache {
 
     @Override
     public long getCacheSizeInBytes() {
+        if (!isEnabled()) {
+            return 0L;
+        }
         return FileUtils.sizeOf(root);
     }
 
